@@ -76,6 +76,38 @@ location /docs/ {
 }
 ```
 
+**Option E: Rails**
+```ruby
+# config/application.rb — register the MIME type
+Mime::Type.register "text/markdown", :md
+
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_action :serve_markdown, if: -> { request.format.md? }
+
+  private
+
+  def serve_markdown
+    md_path = Rails.root.join("markdown", "#{request.path}.md")
+    if File.exist?(md_path)
+      render plain: File.read(md_path), content_type: "text/markdown; charset=utf-8"
+    end
+  end
+end
+```
+
+Or use `respond_to` in individual controllers:
+```ruby
+# app/controllers/docs_controller.rb
+def show
+  @doc = Doc.find_by!(slug: params[:slug])
+  respond_to do |format|
+    format.html
+    format.md { render plain: @doc.markdown_body, content_type: "text/markdown; charset=utf-8" }
+  end
+end
+```
+
 **Verification:**
 ```bash
 curl -H "Accept: text/markdown" https://yoursite.com/docs/getting-started
@@ -106,6 +138,15 @@ res.set('Content-Type', 'text/html; charset=utf-8');
 return new Response(html, {
   headers: { 'Content-Type': 'text/html; charset=utf-8' },
 });
+```
+
+**Rails:**
+```ruby
+# app/controllers/pages_controller.rb
+def show
+  response.content_type = "text/html; charset=utf-8"
+  render :show
+end
 ```
 
 **Nginx:** Ensure `include mime.types;` is in your `http` block.
@@ -151,6 +192,8 @@ Disallow: /admin/
 Disallow: /api/internal/
 ```
 
+**Rails:** Place `robots.txt` in your `public/` directory — Rails serves static files from `public/` by default with no additional configuration needed.
+
 If you intentionally block AI agents, AgentLint reports it as `info` (not an error) — it's your choice, but it reduces agent-friendliness.
 
 **Verification:**
@@ -185,6 +228,20 @@ curl https://yoursite.com/robots.txt
 <h1>API Reference</h1>
 <h2>Authentication</h2>
 <h3>API Keys</h3>
+```
+
+**Rails ERB:**
+```erb
+<!-- app/views/docs/show.html.erb -->
+<h1><%= @doc.title %></h1>
+
+<% @doc.sections.each do |section| %>
+  <h2><%= section.title %></h2>
+  <% section.subsections.each do |sub| %>
+    <h3><%= sub.title %></h3>
+    <%= sub.content %>
+  <% end %>
+<% end %>
 ```
 
 For component-based frameworks (React, Vue), ensure components don't assume a heading level. Use a prop or context to set the right level.
@@ -225,6 +282,22 @@ import rehypeSlug from 'rehype-slug';
 const mdxOptions = { rehypePlugins: [rehypeSlug] };
 ```
 
+**Rails helper:**
+```ruby
+# app/helpers/heading_helper.rb
+module HeadingHelper
+  def heading_with_anchor(tag, text, id: nil)
+    id ||= text.parameterize
+    content_tag(tag, text, id: id)
+  end
+end
+```
+```erb
+<!-- Usage in views -->
+<%= heading_with_anchor(:h2, "Authentication") %>
+<!-- Renders: <h2 id="authentication">Authentication</h2> -->
+```
+
 **Verification:**
 ```bash
 curl -s https://yoursite.com/docs | grep -oP '<h[2-6][^>]*id="[^"]*"'
@@ -258,6 +331,20 @@ Wrap your primary content in semantic elements:
 </body>
 ```
 
+**Rails layout:**
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<body>
+  <header><%= render "shared/nav" %></header>
+  <main>
+    <article>
+      <%= yield %>
+    </article>
+  </main>
+  <footer><%= render "shared/footer" %></footer>
+</body>
+```
+
 At minimum, add a `<main>` element around your primary content. Most frameworks already do this.
 
 ---
@@ -280,6 +367,18 @@ For frameworks:
 - **Hugo:** Set `description` in front matter
 - **Astro:** Pass to `<BaseHead>` component
 
+**Rails:**
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<head>
+  <meta name="description" content="<%= yield(:meta_description) || 'Default site description' %>">
+</head>
+```
+```erb
+<!-- app/views/docs/show.html.erb -->
+<% content_for :meta_description, @doc.summary.truncate(160) %>
+```
+
 Keep descriptions under 160 characters, focused on what the page covers.
 
 ---
@@ -300,6 +399,11 @@ This is typically set once in your base template/layout. All major frameworks su
 - **Next.js:** Set in `app/layout.tsx` on the `<html>` tag
 - **Astro:** Set in your layout component
 - **Hugo:** `{{ .Site.LanguageCode }}` in baseof template
+- **Rails:** Use `I18n.locale` in your layout:
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<html lang="<%= I18n.locale %>">
+```
 
 ---
 
@@ -367,6 +471,26 @@ This is typically set once in your base template/layout. All major frameworks su
 </nav>
 ```
 
+**Rails:** Use partials and conditionally omit boilerplate for markdown responses:
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<body>
+  <%= render "shared/nav" unless content_for?(:skip_chrome) %>
+  <main><%= yield %></main>
+  <%= render "shared/footer" unless content_for?(:skip_chrome) %>
+</body>
+```
+```ruby
+# app/controllers/application_controller.rb — strip nav/footer for markdown
+before_action :strip_chrome_for_markdown, if: -> { request.format.md? }
+
+private
+
+def strip_chrome_for_markdown
+  @skip_chrome = true
+end
+```
+
 ---
 
 ### `tokens/nav-ratio` (info, -1 pt)
@@ -415,6 +539,31 @@ Create `/.well-known/mcp.json` describing your site's capabilities:
 
 This is an emerging standard — even a basic manifest signals agent-readiness. See the [MCP specification](https://modelcontextprotocol.io/) for the full schema.
 
+**Rails:**
+```ruby
+# config/routes.rb
+get ".well-known/mcp.json", to: "mcp#show"
+
+# app/controllers/mcp_controller.rb
+class McpController < ApplicationController
+  def show
+    render json: {
+      schema_version: "1.0",
+      name: "Acme API",
+      description: "Acme's public API for managing widgets",
+      tools: [
+        {
+          name: "list_widgets",
+          description: "List all widgets with optional filtering",
+          endpoint: "/api/v1/widgets",
+          method: "GET"
+        }
+      ]
+    }
+  end
+end
+```
+
 **Verification:**
 ```bash
 curl https://yoursite.com/.well-known/mcp.json
@@ -453,6 +602,17 @@ Our REST API is available at `/api/v1/`. See the [OpenAPI spec](/openapi.json).
 
 **Option B: Section in existing docs**
 Add an "AI/Agent Access" section to your API docs or developer guide.
+
+**Rails:** Add a route and controller for a dedicated agent guide:
+```ruby
+# config/routes.rb
+get "docs/ai-agents", to: "docs#ai_agents"
+
+# app/controllers/docs_controller.rb
+def ai_agents
+  render "docs/ai_agents"
+end
+```
 
 **Verification:**
 ```bash
@@ -500,6 +660,8 @@ Create `/llms.txt` at your site root following the [llms.txt specification](http
 
 **For static site generators:** Add `llms.txt` to your `public/` or `static/` directory.
 
+**Rails:** Place the file at `public/llms.txt` — Rails serves static files from `public/` automatically, no route needed.
+
 **Verification:**
 ```bash
 curl https://yoursite.com/llms.txt
@@ -520,6 +682,22 @@ Most frameworks generate sitemaps automatically:
 - **Hugo:** Built-in with `[sitemap]` config
 - **Astro:** `@astrojs/sitemap` integration
 - **WordPress:** Yoast SEO or built-in (WP 5.5+)
+- **Rails:** Use the `sitemap_generator` gem:
+```ruby
+# Gemfile
+gem "sitemap_generator"
+
+# config/sitemap.rb
+SitemapGenerator::Sitemap.default_host = "https://yoursite.com"
+SitemapGenerator::Sitemap.create do
+  Doc.find_each do |doc|
+    add doc_path(doc), lastmod: doc.updated_at
+  end
+end
+```
+```bash
+rails sitemap:refresh
+```
 
 For static sites, use a sitemap generator:
 ```bash
@@ -570,6 +748,20 @@ If you have an API, publish an OpenAPI spec at one of the standard paths. The mo
     }
   }
 }
+```
+
+**Rails:** Use the `rswag` gem to generate an OpenAPI spec from your API tests:
+```ruby
+# Gemfile
+gem "rswag-api"
+gem "rswag-ui"
+gem "rswag-specs"
+```
+```bash
+rails generate rswag:install
+# Write specs in spec/requests/, then generate:
+rails rswag:specs:swaggerize
+# Serves the spec at /api-docs by default
 ```
 
 **If you don't have an API:** This rule is `info` severity — it won't significantly impact your score. No action needed.
@@ -635,6 +827,33 @@ Add JSON-LD to your pages. The most common types:
   }]
 }
 </script>
+```
+
+**Rails helper:**
+```ruby
+# app/helpers/structured_data_helper.rb
+module StructuredDataHelper
+  def json_ld(data)
+    content_tag(:script, data.to_json.html_safe, type: "application/ld+json")
+  end
+end
+```
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<head>
+  <%= yield(:structured_data) %>
+</head>
+
+<!-- app/views/docs/show.html.erb -->
+<% content_for :structured_data do %>
+  <%= json_ld({
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": @doc.title,
+    "description": @doc.summary,
+    "datePublished": @doc.published_at.iso8601
+  }) %>
+<% end %>
 ```
 
 **Verification:**
