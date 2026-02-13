@@ -12,12 +12,6 @@ const SEVERITY_LABEL: Record<string, string> = {
   info: "Info",
 };
 
-const SEVERITY_ORDER: Record<string, number> = {
-  error: 0,
-  warn: 1,
-  info: 2,
-};
-
 function groupBySeverity(
   results: RuleResult[]
 ): Map<string, RuleResult[]> {
