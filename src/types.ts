@@ -61,7 +61,8 @@ export interface AgentLintConfig {
   maxPages: number;
   tokenThreshold: number;
   requestAlternates: string[];
-  rules: Record<string, { severity?: Severity; enabled?: boolean }>;
+  rules: Record<string, { severity?: Severity; enabled?: boolean; ignorePaths?: string[] }>;
+  ignorePatterns?: string[];
 }
 
 export const DEFAULT_CONFIG: AgentLintConfig = {

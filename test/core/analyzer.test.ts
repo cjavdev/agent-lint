@@ -39,12 +39,42 @@ const failingRule: AgentLintRule = {
   category: "test",
   severity: "error",
   description: "Always fails",
+  remediation: "Fix it",
   async check() {
     return [
       {
         ruleId: "test/fail",
         severity: "error",
         message: "This rule always fails",
+      },
+    ];
+  },
+};
+
+const urlFailingRule: AgentLintRule = {
+  id: "test/url-fail",
+  category: "test",
+  severity: "warn",
+  description: "Fails with URLs",
+  remediation: "Fix URLs",
+  async check() {
+    return [
+      {
+        ruleId: "test/url-fail",
+        severity: "warn",
+        message: "Issue on admin page",
+        url: "https://example.com/admin/settings",
+      },
+      {
+        ruleId: "test/url-fail",
+        severity: "warn",
+        message: "Issue on blog page",
+        url: "https://example.com/blog/post-1",
+      },
+      {
+        ruleId: "test/url-fail",
+        severity: "warn",
+        message: "Site-wide issue (no URL)",
       },
     ];
   },
@@ -121,5 +151,60 @@ describe("analyze", () => {
     const results = await analyze(ctx, [failingRule]);
     expect(results).toHaveLength(1);
     expect(results[0].severity).toBe("warn");
+  });
+
+  it("filters results by rule-level ignorePaths", async () => {
+    const ctx: SiteContext = {
+      targetUrl: "https://example.com",
+      pages: [makePage("https://example.com/")],
+      config: {
+        ...DEFAULT_CONFIG,
+        rules: {
+          "test/url-fail": { ignorePaths: ["/admin/*"] },
+        },
+      },
+    };
+
+    const results = await analyze(ctx, [urlFailingRule]);
+    // admin page filtered out, blog page and no-url result remain
+    expect(results).toHaveLength(2);
+    expect(results.some((r) => r.url?.includes("/admin/"))).toBe(false);
+    expect(results.some((r) => r.url?.includes("/blog/"))).toBe(true);
+    expect(results.some((r) => !r.url)).toBe(true);
+  });
+
+  it("filters results by global ignorePatterns", async () => {
+    const ctx: SiteContext = {
+      targetUrl: "https://example.com",
+      pages: [makePage("https://example.com/")],
+      config: {
+        ...DEFAULT_CONFIG,
+        ignorePatterns: ["/blog/*"],
+        rules: {},
+      },
+    };
+
+    const results = await analyze(ctx, [urlFailingRule]);
+    // blog page filtered out, admin page and no-url result remain
+    expect(results).toHaveLength(2);
+    expect(results.some((r) => r.url?.includes("/blog/"))).toBe(false);
+    expect(results.some((r) => r.url?.includes("/admin/"))).toBe(true);
+  });
+
+  it("does not filter results without a URL (site-wide checks)", async () => {
+    const ctx: SiteContext = {
+      targetUrl: "https://example.com",
+      pages: [makePage("https://example.com/")],
+      config: {
+        ...DEFAULT_CONFIG,
+        ignorePatterns: ["/**"], // ignore everything
+        rules: {},
+      },
+    };
+
+    const results = await analyze(ctx, [urlFailingRule]);
+    // Only the no-url result should remain
+    expect(results).toHaveLength(1);
+    expect(results[0].url).toBeUndefined();
   });
 });

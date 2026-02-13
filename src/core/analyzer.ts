@@ -9,6 +9,7 @@ import type {
   SiteContext,
 } from "../types.js";
 import { DEFAULT_CONFIG } from "../types.js";
+import { isPathIgnored } from "./path-matcher.js";
 
 export function buildSiteContext(
   targetUrl: string,
@@ -96,7 +97,17 @@ export async function analyze(
       }
     }
 
-    results.push(...ruleResults);
+    // Filter results by path-based ignores
+    const globalIgnores = context.config.ignorePatterns ?? [];
+    const ruleIgnores = ruleConfig?.ignorePaths ?? [];
+    const filtered = ruleResults.filter((r) => {
+      if (!r.url) return true; // site-wide results are never path-filtered
+      if (isPathIgnored(r.url, globalIgnores)) return false;
+      if (isPathIgnored(r.url, ruleIgnores)) return false;
+      return true;
+    });
+
+    results.push(...filtered);
   }
 
   return results;

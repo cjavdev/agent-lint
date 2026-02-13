@@ -6,6 +6,7 @@ import { buildSiteContext, discoverRules, analyze } from "./core/analyzer.js";
 import { computeScore } from "./core/scorer.js";
 import { formatConsoleReport } from "./reporters/console.js";
 import { formatAgentReport } from "./reporters/agent.js";
+import { loadConfig } from "./core/config-loader.js";
 import type { ReportData } from "./types.js";
 
 const program = new Command();
@@ -19,6 +20,7 @@ program
   .option("--max-pages <n>", "Maximum pages to crawl", "30")
   .option("--json", "Output as JSON")
   .option("--agent", "Output agent-friendly markdown report")
+  .option("--config <path>", "Path to config file")
   .action(async (url: string, opts: Record<string, string>) => {
     // Validate URL
     let parsedUrl: URL;
@@ -30,6 +32,17 @@ program
     } catch {
       console.error(
         `Error: Invalid URL "${url}". Provide a full URL like https://example.com`
+      );
+      process.exit(2);
+    }
+
+    // Load config file (defaults < config file < CLI flags)
+    let fileConfig: Partial<import("./types.js").AgentLintConfig> = {};
+    try {
+      fileConfig = await loadConfig(opts.config);
+    } catch (err) {
+      console.error(
+        `Error: ${err instanceof Error ? err.message : String(err)}`
       );
       process.exit(2);
     }
@@ -56,8 +69,9 @@ program
 
       spinner.text = `Analyzing ${pages.length} page${pages.length !== 1 ? "s" : ""}...`;
 
-      // Build context
+      // Build context: defaults < config file < CLI flags
       const context = buildSiteContext(parsedUrl.href, pages, {
+        ...fileConfig,
         maxDepth,
         maxPages,
         requestAlternates: ["text/markdown"],
