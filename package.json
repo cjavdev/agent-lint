@@ -1,0 +1,34 @@
+{
+  "name": "agentlint",
+  "version": "0.1.0",
+  "description": "Audit websites for AI/agent-friendliness",
+  "type": "module",
+  "bin": {
+    "agentlint": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "lint": "eslint src/ test/"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cheerio": "^1.0.0",
+    "commander": "^12.1.0",
+    "ora": "^8.1.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
