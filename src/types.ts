@@ -36,6 +36,7 @@ export interface RuleResult {
   severity: Severity;
   url?: string;
   metadata?: Record<string, unknown>;
+  remediation?: string;
 }
 
 export interface SiteContext {
@@ -49,6 +50,7 @@ export interface AgentLintRule {
   category: string;
   severity: Severity;
   description: string;
+  remediation: string;
   check(context: SiteContext): Promise<RuleResult[]>;
 }
 
@@ -64,7 +66,7 @@ export interface AgentLintConfig {
 
 export const DEFAULT_CONFIG: AgentLintConfig = {
   maxDepth: 3,
-  maxPages: 50,
+  maxPages: 30,
   tokenThreshold: 4000,
   requestAlternates: ["text/markdown"],
   rules: {},

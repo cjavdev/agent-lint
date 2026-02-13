@@ -49,16 +49,33 @@ describe("CLI integration", () => {
       pages: [
         {
           path: "/",
-          html: "<html><body><h1>Home</h1></body></html>",
+          html: '<html lang="en"><head><meta name="description" content="Home page"><script type="application/ld+json">{"@type":"WebSite"}</script></head><body><main><h1 id="home">Home</h1></main></body></html>',
           markdown: "# Home\n\nWelcome to the site.\n\n- Item 1\n- Item 2",
+          links: ["/llms.txt", "/sitemap.xml", "/robots.txt"],
+        },
+        {
+          path: "/llms.txt",
+          html: '<html lang="en"><head><meta name="description" content="LLMs guide"></head><body><section># LLMs.txt\n\nAgent-friendly site.</section></body></html>',
+          markdown: "# LLMs.txt\n\nAgent-friendly site.",
+        },
+        {
+          path: "/sitemap.xml",
+          html: '<html lang="en"><head><meta name="description" content="Sitemap"></head><body><section>Sitemap content</section></body></html>',
+          markdown: "# Sitemap\n\n- [Home](/)\n- [LLMs](/llms.txt)",
+        },
+        {
+          path: "/robots.txt",
+          html: '<html lang="en"><head><meta name="description" content="Robots policy"></head><body><main>User-agent: *\nAllow: /</main></body></html>',
+          markdown: "# Robots Policy\n\n- User-agent: *\n- Allow: /",
         },
       ],
     });
 
-    const result = await runCLI(server.url, ["--max-pages", "1"]);
+    // Score is 98: two info-level rules (openapi-detect, mcp-detect) each deduct 1 point
+    const result = await runCLI(server.url, ["--max-pages", "5"]);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("Score:");
-    expect(result.stdout).toContain("100");
+    expect(result.stdout).toContain("98");
   });
 
   it("exits 1 when site does not support markdown", async () => {
@@ -82,16 +99,33 @@ describe("CLI integration", () => {
       pages: [
         {
           path: "/",
-          html: "<html><body><h1>Home</h1></body></html>",
+          html: '<html lang="en"><head><meta name="description" content="Home page"><script type="application/ld+json">{"@type":"WebSite"}</script></head><body><main><h1 id="home">Home</h1></main></body></html>',
           markdown: "# Home\n\n- Item 1",
+          links: ["/llms.txt", "/sitemap.xml", "/robots.txt"],
+        },
+        {
+          path: "/llms.txt",
+          html: '<html lang="en"><head><meta name="description" content="LLMs guide"></head><body><section># LLMs.txt\n\nAgent-friendly site.</section></body></html>',
+          markdown: "# LLMs.txt\n\nAgent-friendly site.",
+        },
+        {
+          path: "/sitemap.xml",
+          html: '<html lang="en"><head><meta name="description" content="Sitemap"></head><body><section>Sitemap content</section></body></html>',
+          markdown: "# Sitemap\n\n- [Home](/)\n- [LLMs](/llms.txt)",
+        },
+        {
+          path: "/robots.txt",
+          html: '<html lang="en"><head><meta name="description" content="Robots policy"></head><body><main>User-agent: *\nAllow: /</main></body></html>',
+          markdown: "# Robots Policy\n\n- User-agent: *\n- Allow: /",
         },
       ],
     });
 
-    const result = await runCLI(server.url, ["--max-pages", "1", "--json"]);
+    // Score is 98: two info-level rules (openapi-detect, mcp-detect) each deduct 1 point
+    const result = await runCLI(server.url, ["--max-pages", "5", "--json"]);
     expect(result.exitCode).toBe(0);
     const json = JSON.parse(result.stdout);
     expect(json.targetUrl).toContain(server.url);
-    expect(json.score.score).toBe(100);
+    expect(json.score.score).toBe(98);
   });
 });

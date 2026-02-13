@@ -3,7 +3,7 @@ import type { CrawlConfig, CrawledPage, AlternateResponse } from "../types.js";
 
 const DEFAULT_CRAWL_CONFIG: CrawlConfig = {
   maxDepth: 3,
-  maxPages: 50,
+  maxPages: 30,
   requestAlternates: ["text/markdown"],
   timeout: 10000,
   userAgent: "AgentLint/0.1",

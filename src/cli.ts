@@ -5,6 +5,7 @@ import { crawl } from "./core/crawler.js";
 import { buildSiteContext, discoverRules, analyze } from "./core/analyzer.js";
 import { computeScore } from "./core/scorer.js";
 import { formatConsoleReport } from "./reporters/console.js";
+import { formatAgentReport } from "./reporters/agent.js";
 import type { ReportData } from "./types.js";
 
 const program = new Command();
@@ -15,8 +16,9 @@ program
   .version("0.1.0")
   .argument("<url>", "URL to audit")
   .option("--max-depth <n>", "Maximum crawl depth", "3")
-  .option("--max-pages <n>", "Maximum pages to crawl", "50")
+  .option("--max-pages <n>", "Maximum pages to crawl", "30")
   .option("--json", "Output as JSON")
+  .option("--agent", "Output agent-friendly markdown report")
   .action(async (url: string, opts: Record<string, string>) => {
     // Validate URL
     let parsedUrl: URL;
@@ -83,6 +85,8 @@ program
       // Output
       if (opts.json) {
         console.log(JSON.stringify(reportData, null, 2));
+      } else if (opts.agent) {
+        console.log(formatAgentReport(reportData));
       } else {
         console.log(formatConsoleReport(reportData));
       }

@@ -31,6 +31,8 @@ const rule: AgentLintRule = {
   severity: "error",
   description:
     "Site should return markdown content when Accept: text/markdown header is sent",
+  remediation:
+    "Configure your server to return markdown when it receives `Accept: text/markdown`. Use content negotiation middleware or a reverse proxy rule.",
 
   async check(context: SiteContext): Promise<RuleResult[]> {
     const results: RuleResult[] = [];

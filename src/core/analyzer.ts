@@ -86,10 +86,13 @@ export async function analyze(
 
     const ruleResults = await rule.check(context);
 
-    // Apply severity overrides
-    if (ruleConfig?.severity) {
-      for (const r of ruleResults) {
+    // Apply severity overrides and copy remediation
+    for (const r of ruleResults) {
+      if (ruleConfig?.severity) {
         r.severity = ruleConfig.severity;
+      }
+      if (rule.remediation) {
+        r.remediation = rule.remediation;
       }
     }
 
