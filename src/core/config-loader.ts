@@ -24,7 +24,7 @@ const configFileSchema = z
 
 export type ConfigFile = z.infer<typeof configFileSchema>;
 
-const SEARCH_FILES = ["agentlint.config.json", ".agentlintrc.json"];
+const SEARCH_FILES = ["agent-lint.config.json", ".agentlintrc.json"];
 
 async function tryReadJson(path: string): Promise<unknown | null> {
   try {

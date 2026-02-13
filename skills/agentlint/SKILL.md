@@ -1,6 +1,6 @@
 ---
 name: agentlint
-description: "Audit any website for AI/agent-friendliness using AgentLint. Run npx agentlint with a URL to scan a site across 17 rules in 5 categories (transport, structure, tokens, discoverability, agent), get a 0-100 AgentScore with letter grade, and receive a prioritized remediation plan. Use this skill when: auditing a site for AI readiness, checking if a site has llms.txt or markdown support, improving a website's agent-friendliness score, fixing AgentLint violations, or understanding what makes a site AI-friendly. Trigger phrases: 'run agentlint', 'audit site for AI', 'check agent-friendliness', 'agentlint scan', 'AI-friendly audit', 'check llms.txt', 'agent readiness'."
+description: "Audit any website for AI/agent-friendliness using AgentLint. Run npx agent-lint with a URL to scan a site across 17 rules in 5 categories (transport, structure, tokens, discoverability, agent), get a 0-100 AgentScore with letter grade, and receive a prioritized remediation plan. Use this skill when: auditing a site for AI readiness, checking if a site has llms.txt or markdown support, improving a website's agent-friendliness score, fixing AgentLint violations, or understanding what makes a site AI-friendly. Trigger phrases: 'run agentlint', 'audit site for AI', 'check agent-friendliness', 'agentlint scan', 'AI-friendly audit', 'check llms.txt', 'agent readiness'."
 ---
 
 # AgentLint
@@ -12,7 +12,7 @@ Audit websites for AI/agent-friendliness. Runs 17 rules across 5 categories, pro
 ### Step 1: Run the CLI
 
 ```bash
-npx agentlint <url> --agent
+npx agent-lint <url> --agent
 ```
 
 The `--agent` flag outputs a structured markdown report optimized for parsing. If the user wants raw JSON, use `--json` instead.
@@ -115,7 +115,7 @@ When presenting a remediation plan, order fixes by **points recoverable per unit
 
 ## Configuration
 
-Sites can customize behavior via `agentlint.config.json`:
+Sites can customize behavior via `agent-lint.config.json`:
 
 ```json
 {

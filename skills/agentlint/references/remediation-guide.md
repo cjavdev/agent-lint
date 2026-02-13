@@ -319,7 +319,7 @@ This is typically set once in your base template/layout. All major frameworks su
 4. **Configure the threshold** if your content legitimately needs more tokens:
 
 ```json
-// agentlint.config.json
+// agent-lint.config.json
 {
   "tokenThreshold": 8000
 }
@@ -646,7 +646,7 @@ curl -s https://yoursite.com/ | grep 'application/ld+json'
 
 ## Configuration Reference
 
-All rules can be configured via `agentlint.config.json` or `.agentlintrc.json`:
+All rules can be configured via `agent-lint.config.json` or `.agentlintrc.json`:
 
 ```json
 {

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What Is AgentLint
 
-AgentLint is a CLI tool that audits public websites and documentation domains for AI/agent-friendliness. It crawls a site, applies lint rules, and outputs structured violations with a numeric AgentScore (0–100). Runnable via `npx agentlint https://example.com`.
+AgentLint is a CLI tool that audits public websites and documentation domains for AI/agent-friendliness. It crawls a site, applies lint rules, and outputs structured violations with a numeric AgentScore (0–100). Runnable via `npx agent-lint https://example.com`.
 
 ## Tech Stack
 
@@ -69,7 +69,7 @@ All shared types live in `src/types.ts`. The `SiteContext` type is the primary i
 
 ### Configuration
 
-Optional `agentlint.config.json` at project root. Validated with zod. Supports: `maxDepth`, `maxPages`, `tokenThreshold`, per-rule severity overrides.
+Optional `agent-lint.config.json` at project root. Validated with zod. Supports: `maxDepth`, `maxPages`, `tokenThreshold`, per-rule severity overrides.
 
 ## Design Principles
 

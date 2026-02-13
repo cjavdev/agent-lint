@@ -3,7 +3,7 @@
 **Audit any website for AI-agent friendliness.** One command tells you if your site is ready for LLMs, crawlers, and autonomous agents — or what's blocking them.
 
 ```bash
-npx agentlint https://docs.example.com
+npx agent-lint https://docs.example.com
 ```
 
 ```
@@ -37,10 +37,10 @@ AgentLint checks what agents actually care about:
 
 ```bash
 # Run directly — no install needed
-npx agentlint https://example.com
+npx agent-lint https://example.com
 
 # Or install globally
-npm install -g agentlint
+npm install -g agent-lint
 ```
 
 Requires Node.js 18+.
@@ -49,16 +49,16 @@ Requires Node.js 18+.
 
 ```bash
 # Basic audit
-agentlint https://example.com
+agent-lint https://example.com
 
 # Crawl deeper
-agentlint https://example.com --max-depth 5 --max-pages 100
+agent-lint https://example.com --max-depth 5 --max-pages 100
 
 # JSON output (for CI pipelines)
-agentlint https://example.com --json
+agent-lint https://example.com --json
 
 # Agent-friendly markdown report
-agentlint https://example.com --agent
+agent-lint https://example.com --agent
 ```
 
 ### CLI Options
@@ -142,7 +142,7 @@ AgentLint produces a numeric score (0–100) and a letter grade:
 
 ## Configuration
 
-Create an `agentlint.config.json` in your project root to customize behavior:
+Create an `agent-lint.config.json` in your project root to customize behavior:
 
 ```json
 {

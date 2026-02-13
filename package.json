@@ -1,10 +1,10 @@
 {
-  "name": "agentlint",
+  "name": "agent-lint",
   "version": "0.1.0",
   "description": "Audit websites for AI/agent-friendliness",
   "type": "module",
   "bin": {
-    "agentlint": "./dist/cli.js"
+    "agent-lint": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -29,6 +29,6 @@
     "vitest": "^2.1.8"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

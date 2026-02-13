@@ -12,7 +12,7 @@ import type { ReportData } from "./types.js";
 const program = new Command();
 
 program
-  .name("agentlint")
+  .name("agent-lint")
   .description("Audit websites for AI/agent-friendliness")
   .version("0.1.0")
   .argument("<url>", "URL to audit")

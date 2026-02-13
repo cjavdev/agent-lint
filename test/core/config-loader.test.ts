@@ -24,10 +24,10 @@ describe("loadConfig", () => {
     });
   });
 
-  it("loads agentlint.config.json from cwd", async () => {
+  it("loads agent-lint.config.json from cwd", async () => {
     await withTempDir(async (dir) => {
       await writeFile(
-        join(dir, "agentlint.config.json"),
+        join(dir, "agent-lint.config.json"),
         JSON.stringify({ maxDepth: 5 })
       );
       const config = await loadConfig(undefined, dir);
@@ -46,10 +46,10 @@ describe("loadConfig", () => {
     });
   });
 
-  it("prefers agentlint.config.json over .agentlintrc.json", async () => {
+  it("prefers agent-lint.config.json over .agentlintrc.json", async () => {
     await withTempDir(async (dir) => {
       await writeFile(
-        join(dir, "agentlint.config.json"),
+        join(dir, "agent-lint.config.json"),
         JSON.stringify({ maxDepth: 5 })
       );
       await writeFile(
@@ -81,7 +81,7 @@ describe("loadConfig", () => {
   it("throws on invalid config shape", async () => {
     await withTempDir(async (dir) => {
       await writeFile(
-        join(dir, "agentlint.config.json"),
+        join(dir, "agent-lint.config.json"),
         JSON.stringify({ unknownKey: true })
       );
       await expect(loadConfig(undefined, dir)).rejects.toThrow("Invalid config");
@@ -100,7 +100,7 @@ describe("loadConfig", () => {
         },
       };
       await writeFile(
-        join(dir, "agentlint.config.json"),
+        join(dir, "agent-lint.config.json"),
         JSON.stringify(config)
       );
       const loaded = await loadConfig(undefined, dir);
