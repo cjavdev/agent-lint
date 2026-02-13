@@ -1,5 +1,5 @@
 {
-  "name": "agent-lint",
+  "name": "@cjavdev/agent-lint",
   "version": "0.1.0",
   "description": "Audit websites for AI/agent-friendliness",
   "type": "module",

@@ -3,7 +3,7 @@
 **Audit any website for AI-agent friendliness.** One command tells you if your site is ready for LLMs, crawlers, and autonomous agents — or what's blocking them.
 
 ```bash
-npx agent-lint https://docs.example.com
+npx @cjavdev/agent-lint https://docs.example.com
 ```
 
 ```
@@ -37,10 +37,10 @@ AgentLint checks what agents actually care about:
 
 ```bash
 # Run directly — no install needed
-npx agent-lint https://example.com
+npx @cjavdev/agent-lint https://example.com
 
 # Or install globally
-npm install -g agent-lint
+npm install -g @cjavdev/agent-lint
 ```
 
 Requires Node.js 18+.
