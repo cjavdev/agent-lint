@@ -45,6 +45,16 @@ npm install -g @cjavdev/agent-lint
 
 Requires Node.js 18+.
 
+## Skills Setup
+
+AgentLint is available as a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code/skills). Add it to any project so Claude can automatically audit your site for agent-friendliness:
+
+```bash
+npx @anthropic-ai/skills add @cjavdev/agent-lint
+```
+
+This registers AgentLint as a skill that Claude Code can invoke during development sessions — no manual configuration needed.
+
 ## Usage
 
 ```bash
