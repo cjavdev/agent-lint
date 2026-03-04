@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import rule from "../../../src/rules/transport/robots-txt.js";
 import type {
   CrawledPage,
@@ -37,7 +37,8 @@ function makeContext(
 }
 
 describe("transport/robots-txt", () => {
-  it("warns when robots.txt is missing", async () => {
+  it("warns when robots.txt is missing and fetch fails", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network error"));
     const context = makeContext([
       makePage("http://example.com/", "<html></html>"),
     ]);
@@ -45,6 +46,39 @@ describe("transport/robots-txt", () => {
     expect(results).toHaveLength(1);
     expect(results[0].severity).toBe("warn");
     expect(results[0].message).toContain("No /robots.txt found");
+    fetchSpy.mockRestore();
+  });
+
+  it("falls back to direct fetch when not in crawled pages", async () => {
+    const robotsContent = "User-agent: GPTBot\nDisallow: /\n";
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(robotsContent, { status: 200 })
+    );
+    const context = makeContext([
+      makePage("http://example.com/", "<html></html>"),
+    ]);
+    const results = await rule.check(context);
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "http://example.com/robots.txt",
+      expect.objectContaining({ headers: { "User-Agent": "AgentLint/0.1" } })
+    );
+    expect(results).toHaveLength(1);
+    expect(results[0].message).toContain('blocks AI agent "GPTBot"');
+    fetchSpy.mockRestore();
+  });
+
+  it("warns when direct fetch returns non-2xx", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("Not Found", { status: 404 })
+    );
+    const context = makeContext([
+      makePage("http://example.com/", "<html></html>"),
+    ]);
+    const results = await rule.check(context);
+    expect(results).toHaveLength(1);
+    expect(results[0].severity).toBe("warn");
+    expect(results[0].message).toContain("No /robots.txt found");
+    fetchSpy.mockRestore();
   });
 
   it("passes when robots.txt exists with no AI blocks", async () => {

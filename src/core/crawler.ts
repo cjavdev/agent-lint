@@ -85,7 +85,8 @@ async function fetchPage(
       try {
         const resolved = new URL(href, url).href;
         const normalized = normalize(resolved);
-        if (new URL(normalized).origin === origin) {
+        const normalizedUrl = new URL(normalized);
+        if (normalizedUrl.origin === origin && !normalizedUrl.pathname.startsWith("/cdn-cgi/")) {
           links.push(normalized);
         }
       } catch {
