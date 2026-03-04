@@ -21,6 +21,7 @@ function makePage(
     links: [],
     sizeBytes: html.length,
     alternateRepresentations: new Map(),
+    relAlternateLinks: [],
   };
 }
 

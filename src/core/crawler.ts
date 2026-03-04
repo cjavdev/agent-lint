@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { CrawlConfig, CrawledPage, AlternateResponse } from "../types.js";
+import type { CrawlConfig, CrawledPage, AlternateResponse, RelAlternateLink } from "../types.js";
 
 const DEFAULT_CRAWL_CONFIG: CrawlConfig = {
   maxDepth: 3,
@@ -93,6 +93,21 @@ async function fetchPage(
       }
     });
 
+    // Extract rel="alternate" links from <head>
+    const relAlternateLinks: RelAlternateLink[] = [];
+    $('link[rel="alternate"]').each((_, el) => {
+      const type = $(el).attr("type") ?? "";
+      const href = $(el).attr("href") ?? "";
+      if (!href) return;
+      try {
+        const resolved = new URL(href, url).href;
+        const title = $(el).attr("title");
+        relAlternateLinks.push({ type, href: resolved, ...(title ? { title } : {}) });
+      } catch {
+        // Skip invalid URLs
+      }
+    });
+
     // Collect response headers
     const headers: Record<string, string> = {};
     res.headers.forEach((value, key) => {
@@ -135,6 +150,7 @@ async function fetchPage(
       links: [...new Set(links)],
       sizeBytes: Buffer.byteLength(html, "utf-8"),
       alternateRepresentations,
+      relAlternateLinks,
     };
   } finally {
     clearTimeout(timer);

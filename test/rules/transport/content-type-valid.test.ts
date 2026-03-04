@@ -20,6 +20,7 @@ function makePage(
     links: [],
     sizeBytes: 100,
     alternateRepresentations: new Map(),
+    relAlternateLinks: [],
   };
 }
 

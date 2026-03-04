@@ -15,6 +15,12 @@ export interface AlternateResponse {
   contentType: string;
 }
 
+export interface RelAlternateLink {
+  type: string;
+  href: string;
+  title?: string;
+}
+
 export interface CrawledPage {
   url: string;
   status: number;
@@ -24,6 +30,7 @@ export interface CrawledPage {
   links: string[];
   sizeBytes: number;
   alternateRepresentations: Map<string, AlternateResponse>;
+  relAlternateLinks: RelAlternateLink[];
 }
 
 // ---------- Rules ----------

@@ -5,12 +5,14 @@ import type {
   SiteContext,
   AgentLintConfig,
   AlternateResponse,
+  RelAlternateLink,
 } from "../../../src/types.js";
 import { DEFAULT_CONFIG } from "../../../src/types.js";
 
 function makePage(
   url: string,
-  alternate?: Partial<AlternateResponse> | "none"
+  alternate?: Partial<AlternateResponse> | "none",
+  relAlternateLinks: RelAlternateLink[] = []
 ): CrawledPage {
   const page: CrawledPage = {
     url,
@@ -21,6 +23,7 @@ function makePage(
     links: [],
     sizeBytes: 100,
     alternateRepresentations: new Map(),
+    relAlternateLinks,
   };
 
   if (alternate !== "none") {
@@ -102,6 +105,47 @@ describe("transport/accept-markdown", () => {
     ]);
     const results = await rule.check(ctx);
     expect(results).toHaveLength(2);
+  });
+
+  it("downgrades to warn when no content negotiation but rel-alternate exists", async () => {
+    const relLinks: RelAlternateLink[] = [
+      { type: "text/markdown", href: "http://example.com/page.md" },
+    ];
+    const ctx = makeContext([makePage("http://example.com/", "none", relLinks)]);
+    const results = await rule.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0].severity).toBe("warn");
+    expect(results[0].message).toContain("rel=\"alternate\"");
+  });
+
+  it("downgrades to warn when non-2xx but rel-alternate exists", async () => {
+    const relLinks: RelAlternateLink[] = [
+      { type: "text/markdown", href: "http://example.com/page.md" },
+    ];
+    const ctx = makeContext([
+      makePage("http://example.com/", { status: 406, body: "Not Acceptable" }, relLinks),
+    ]);
+    const results = await rule.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0].severity).toBe("warn");
+    expect(results[0].message).toContain("406");
+    expect(results[0].message).toContain("rel=\"alternate\"");
+  });
+
+  it("downgrades to warn when HTML body but rel-alternate exists", async () => {
+    const relLinks: RelAlternateLink[] = [
+      { type: "text/markdown", href: "http://example.com/page.md" },
+    ];
+    const ctx = makeContext([
+      makePage(
+        "http://example.com/",
+        { body: "<!DOCTYPE html><html><body>Hello</body></html>" },
+        relLinks
+      ),
+    ]);
+    const results = await rule.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0].severity).toBe("warn");
   });
 
   it("detects various markdown patterns", async () => {

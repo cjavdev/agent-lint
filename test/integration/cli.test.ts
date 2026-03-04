@@ -71,11 +71,11 @@ describe("CLI integration", () => {
       ],
     });
 
-    // Score is 98: two info-level rules (openapi-detect, mcp-detect) each deduct 1 point
+    // Score is 94: six info-level rules (openapi-detect, mcp-detect, 4x rel-alternate-markdown) each deduct 1 point
     const result = await runCLI(server.url, ["--max-pages", "5"]);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("Score:");
-    expect(result.stdout).toContain("98");
+    expect(result.stdout).toContain("94");
   });
 
   it("exits 1 when site does not support markdown", async () => {
@@ -121,11 +121,11 @@ describe("CLI integration", () => {
       ],
     });
 
-    // Score is 98: two info-level rules (openapi-detect, mcp-detect) each deduct 1 point
+    // Score is 94: six info-level rules (openapi-detect, mcp-detect, 4x rel-alternate-markdown) each deduct 1 point
     const result = await runCLI(server.url, ["--max-pages", "5", "--json"]);
     expect(result.exitCode).toBe(0);
     const json = JSON.parse(result.stdout);
     expect(json.targetUrl).toContain(server.url);
-    expect(json.score.score).toBe(98);
+    expect(json.score.score).toBe(94);
   });
 });

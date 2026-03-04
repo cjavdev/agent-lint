@@ -17,6 +17,7 @@ function makePage(url: string, html: string): CrawledPage {
     links: [],
     sizeBytes: html.length,
     alternateRepresentations: new Map(),
+    relAlternateLinks: [],
   };
 }
 

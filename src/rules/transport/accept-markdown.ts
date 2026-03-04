@@ -39,12 +39,17 @@ const rule: AgentLintRule = {
 
     for (const page of context.pages) {
       const alt = page.alternateRepresentations.get("text/markdown");
+      const hasRelAlternate = page.relAlternateLinks.some(
+        (link) => link.type === "text/markdown"
+      );
 
       if (!alt) {
         results.push({
           ruleId: rule.id,
-          severity: rule.severity,
-          message: "No markdown alternate representation was fetched",
+          severity: hasRelAlternate ? "warn" : rule.severity,
+          message: hasRelAlternate
+            ? "No content negotiation for markdown, but a <link rel=\"alternate\" type=\"text/markdown\"> was found"
+            : "No markdown alternate representation was fetched",
           url: page.url,
         });
         continue;
@@ -53,8 +58,10 @@ const rule: AgentLintRule = {
       if (alt.status < 200 || alt.status >= 300) {
         results.push({
           ruleId: rule.id,
-          severity: rule.severity,
-          message: `Markdown request returned HTTP ${alt.status}`,
+          severity: hasRelAlternate ? "warn" : rule.severity,
+          message: hasRelAlternate
+            ? `Markdown request returned HTTP ${alt.status}, but a <link rel=\"alternate\" type=\"text/markdown\"> was found`
+            : `Markdown request returned HTTP ${alt.status}`,
           url: page.url,
         });
         continue;
@@ -64,9 +71,10 @@ const rule: AgentLintRule = {
       if (!looksLikeMarkdown(alt.body)) {
         results.push({
           ruleId: rule.id,
-          severity: rule.severity,
-          message:
-            "Response to Accept: text/markdown does not contain recognizable markdown content",
+          severity: hasRelAlternate ? "warn" : rule.severity,
+          message: hasRelAlternate
+            ? "Response to Accept: text/markdown does not contain recognizable markdown, but a <link rel=\"alternate\" type=\"text/markdown\"> was found"
+            : "Response to Accept: text/markdown does not contain recognizable markdown content",
           url: page.url,
         });
         continue;

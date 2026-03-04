@@ -86,6 +86,7 @@ Optional `agent-lint.config.json` at project root. Validated with zod. Supports:
 | transport | `transport/content-type-valid` | warn | Response has correct content-type header |
 | discoverability | `discoverability/llms-txt` | error | `/llms.txt` exists |
 | discoverability | `discoverability/sitemap` | warn | `/sitemap.xml` exists |
+| discoverability | `discoverability/rel-alternate-markdown` | info | Pages advertise markdown via `<link rel="alternate">` |
 | discoverability | `discoverability/openapi-detect` | info | OpenAPI spec at common paths |
 | structure | `structure/heading-hierarchy` | warn | H1 exists, no skipped heading levels |
 | structure | `structure/anchor-ids` | warn | Headers have anchor IDs |
