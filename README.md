@@ -45,6 +45,16 @@ npm install -g @cjavdev/agent-lint
 
 Requires Node.js 18+.
 
+## Skills Setup
+
+AgentLint is available as an agent skill on [skills.sh](https://skills.sh). Add it to your coding agent so it can automatically audit sites for agent-friendliness:
+
+```bash
+npx skills add cjavdev/agent-lint
+```
+
+This installs the AgentLint skill for your coding agent (Claude Code, Cursor, Codex, and others). Once installed, your agent can run AgentLint audits and guide you through remediating violations.
+
 ## Usage
 
 ```bash
