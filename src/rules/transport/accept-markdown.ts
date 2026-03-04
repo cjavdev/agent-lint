@@ -60,7 +60,7 @@ const rule: AgentLintRule = {
           ruleId: rule.id,
           severity: hasRelAlternate ? "warn" : rule.severity,
           message: hasRelAlternate
-            ? `Markdown request returned HTTP ${alt.status}, but a <link rel=\"alternate\" type=\"text/markdown\"> was found`
+            ? `Markdown request returned HTTP ${alt.status}, but a <link rel="alternate" type="text/markdown"> was found`
             : `Markdown request returned HTTP ${alt.status}`,
           url: page.url,
         });
