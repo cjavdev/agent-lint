@@ -13,20 +13,20 @@
     "lint": "eslint src/ test/"
   },
   "dependencies": {
-    "chalk": "^5.4.1",
-    "cheerio": "^1.0.0",
-    "commander": "^12.1.0",
-    "ora": "^8.1.1",
-    "zod": "^3.24.1"
+    "chalk": "^6.0.1",
+    "cheerio": "^1.2.0",
+    "commander": "^15.0.0",
+    "ora": "^9.4.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/node": "^22.10.2",
-    "eslint": "^9.17.0",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.1",
-    "vitest": "^2.1.8"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.2",
+    "eslint": "^10.13.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^2.1.9"
   },
   "engines": {
     "node": ">=20"
